@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JLPT N3 文法対策ドリル - 第1週</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', 'Arial', 'Hiragino Sans', 'Meiryo', sans-serif;
+        }
+        .day-btn.active {
+            background-color: #1d4ed8;
+            color: white;
+        }
+        .choice-label {
+            display: block;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .choice-label:hover {
+            background-color: #f3f4f6;
+            border-color: #3b82f6;
+        }
+        .choice-label.correct {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+        }
+        .choice-label.incorrect {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+        }
+        .reorder-option {
+            display: inline-block;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin: 4px;
+            cursor: pointer;
+            background-color: white;
+            user-select: none;
+        }
+        .reorder-option:hover:not(:disabled) {
+            background-color: #f0f0f0;
+        }
+        .reorder-option:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #e5e7eb;
+        }
+        .reorder-answer-box {
+            min-height: 50px;
+            border: 2px dashed #9ca3af;
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+        .reorder-answer-box.correct {
+            border-color: #22c55e;
+            background-color: #f0fdf4;
+        }
+        .reorder-answer-box.incorrect {
+            border-color: #ef4444;
+            background-color: #fef2f2;
+        }
+        ruby {
+            ruby-position: over;
+        }
+        rt {
+            font-size: 0.6em;
+            color: #666;
+        }
+        
+        /* アニメーション */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+    
+        /* ふりがな用スタイル */
+        ruby rt { visibility: hidden; opacity: 0; transition: opacity 0.2s; font-size: 0.6em; color: #666; }
+        ruby.show-furigana rt { visibility: visible; opacity: 1; }
+        ruby { cursor: pointer; }
+        
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/kuroshiro@1.2.0/dist/kuroshiro.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/kuroshiro-analyzer-kuromoji@1.1.0/dist/kuroshiro-analyzer-kuromoji.min.js"></script>
+        
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-700 mb-2">JLPT N3 文法対策ドリル</h1>
+            <p class="text-lg text-gray-600 font-medium">第1週：文末表現など</p>
+        </header>
+
+        <!-- 日付選択 -->
+        <div id="day-selector" class="flex flex-wrap justify-center gap-2 mb-8">
+            <!-- JSで生成 -->
+        </div>
+
+        <!-- クイズエリア -->
+        <main id="quiz-container" class="bg-white p-6 sm:p-8 rounded-xl shadow-lg border-t-4 border-blue-600 min-h-[400px]">
+            <div id="welcome-screen" class="text-center py-10">
+                <div class="mb-6 text-6xl">📖</div>
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800">学習を始めましょう</h2>
+                <p class="text-gray-500 max-w-md mx-auto">上のボタンから学習したい日（Day）を選んでください。各日の文法ポイントに基づいた問題が出題されます。</p>
+            </div>
+        </main>
+
+        <footer class="text-center mt-12 text-gray-400 text-sm">
+            &copy; JLPT N3 Grammar Practice
+        </footer>
+    </div>
+
+    <script>
+        // ========================================
+        // 第6週 クイズデータ（敬語特集）
+        // ========================================
+        window.grammarQuizData = {
+    "1": {
+        "theme": "第1週 1日目",
+        "mondai1": [
+            {
+                "q": "新しい法律が来月から（　　）ことになった。",
+                "o": [
+                    "施行する",
+                    "施行される",
+                    "施行させる",
+                    "施行させられる"
+                ],
+                "a": 1
+            },
+            {
+                "q": "この本には、日本の歴史について詳しく（　　）。",
+                "o": [
+                    "書かれています",
+                    "書いています",
+                    "書かせています",
+                    "書かされています"
+                ],
+                "a": 0
+            },
+            {
+                "q": "泥棒に入られて、現金とパスポートを（　　）。",
+                "o": [
+                    "盗まされた",
+                    "盗んだ",
+                    "盗ませた",
+                    "盗まれた"
+                ],
+                "a": 3
+            },
+            {
+                "q": "体調が悪いので、今日は早く（　　）ください。",
+                "o": [
+                    "帰られて",
+                    "帰らされて",
+                    "帰らせて",
+                    "帰って"
+                ],
+                "a": 2
+            },
+            {
+                "q": "満員電車の中で、誰かに足を（　　）痛かった。",
+                "o": [
+                    "踏まされて",
+                    "踏ませて",
+                    "踏まれて",
+                    "踏んで"
+                ],
+                "a": 2
+            },
+            {
+                "q": "帰る途中で友達が傘を（　　）、助かりました。",
+                "o": [
+                    "貸されて",
+                    "貸さされて",
+                    "貸してくれて",
+                    "貸させて"
+                ],
+                "a": 2
+            },
+            {
+                "q": "政府は来月から新しい法律を（　　）予定だ。",
+                "o": [
+                    "施行する",
+                    "施行される",
+                    "施行させる",
+                    "施行させられる"
+                ],
+                "a": 0
+            },
+            {
+                "q": "私たちは、この地方で昔から珍しい野菜を（　　）。",
+                "o": [
+                    "育たせている",
+                    "育てている",
+                    "育てさせている",
+                    "育てられている"
+                ],
+                "a": 1
+            },
+            {
+                "q": "時間がないので、この件についてこれ以上（　　）余裕はない。",
+                "o": [
+                    "考えて",
+                    "考えさせて",
+                    "考えさせる",
+                    "考えられて"
+                ],
+                "a": 2
+            },
+            {
+                "q": "忙しい時に同僚が仕事を（　　）、本当に感謝している。",
+                "o": [
+                    "手伝わせて",
+                    "手伝われて",
+                    "手伝ってくれて",
+                    "手伝わされて"
+                ],
+                "a": 2
+            }
+        ],
+        "mondai2": [
+            {
+                "q": "昨夜は隣の部屋の＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "泣かれて、",
+                    "眠れなかった。",
+                    "全然",
+                    "赤ちゃんに"
+                ],
+                "a": [
+                    "赤ちゃんに",
+                    "泣かれて、",
+                    "全然",
+                    "眠れなかった。"
+                ]
+            },
+            {
+                "q": "＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿パリの美術館に展示されている。",
+                "o": [
+                    "あの",
+                    "現在",
+                    "有名な",
+                    "絵画は、"
+                ],
+                "a": [
+                    "あの",
+                    "有名な",
+                    "絵画は、",
+                    "現在"
+                ]
+            },
+            {
+                "q": "後ろの人に座席を＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "不快な",
+                    "した。",
+                    "蹴られて、",
+                    "思いを"
+                ],
+                "a": [
+                    "蹴られて、",
+                    "不快な",
+                    "思いを",
+                    "した。"
+                ]
+            },
+            {
+                "q": "わからなかったので、＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "確認させて",
+                    "ください。",
+                    "一度",
+                    "もう"
+                ],
+                "a": [
+                    "もう",
+                    "一度",
+                    "確認させて",
+                    "ください。"
+                ]
+            },
+            {
+                "q": "もっと＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿ください。",
+                "o": [
+                    "私から",
+                    "話を",
+                    "説明させて",
+                    "詳しい"
+                ],
+                "a": [
+                    "詳しい",
+                    "話を",
+                    "私から",
+                    "説明させて"
+                ]
+            }
+        ]
+    },
+    "2": {
+        "theme": "第1週 2日目",
+        "mondai1": [
+            {
+                "q": "明日は早いから、もう（　　）。",
+                "o": [
+                    "寝ておく",
+                    "寝ないと",
+                    "寝ちゃう",
+                    "寝なくても"
+                ],
+                "a": 1
+            },
+            {
+                "q": "ごめん、君のお菓子も（　　）。",
+                "o": [
+                    "食べないでおく",
+                    "食べないと",
+                    "食べちゃった",
+                    "食べておく"
+                ],
+                "a": 2
+            },
+            {
+                "q": "テストに出るから、この単語を（　　）。",
+                "o": [
+                    "覚えといてね",
+                    "覚えちゃってね",
+                    "忘れないとね",
+                    "覚えないとね"
+                ],
+                "a": 0
+            },
+            {
+                "q": "ジュース、（　　）くれた？",
+                "o": [
+                    "冷やしといて",
+                    "冷やさなくて",
+                    "冷やさないと",
+                    "冷やしちゃって"
+                ],
+                "a": 0
+            },
+            {
+                "q": "冷蔵庫が空だ。スーパーで買い物（　　）。",
+                "o": [
+                    "しなくても",
+                    "しとく",
+                    "しちゃう",
+                    "しないと"
+                ],
+                "a": 3
+            },
+            {
+                "q": "その仕事は急がないから、今日中に（　　）。",
+                "o": [
+                    "終わらせないと",
+                    "終わらせておく",
+                    "終わらせなくてもいい",
+                    "終わらせてしまう"
+                ],
+                "a": 2
+            },
+            {
+                "q": "道が空いているから、そんなに急いで（　　）。",
+                "o": [
+                    "走らなくてもいい",
+                    "走っちゃう",
+                    "走っとく",
+                    "走らないと"
+                ],
+                "a": 0
+            },
+            {
+                "q": "まだ使うかもしれないから、その資料は（　　）。",
+                "o": [
+                    "捨てないと",
+                    "捨てないでおいた",
+                    "捨てるかもしれない",
+                    "捨てちゃった"
+                ],
+                "a": 1
+            },
+            {
+                "q": "窓を開けっ放しにすると虫が入るので、（　　）。",
+                "o": [
+                    "そのままにしといて",
+                    "そのままにしないと",
+                    "そのままにしないで",
+                    "そのままにしちゃって"
+                ],
+                "a": 2
+            },
+            {
+                "q": "メモをしなかったせいで、大事な約束をすっかり（　　）。",
+                "o": [
+                    "忘れてしまった",
+                    "忘れないでおいた",
+                    "忘れないと",
+                    "忘れといた"
+                ],
+                "a": 0
+            }
+        ],
+        "mondai2": [
+            {
+                "q": "＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿教えて。",
+                "o": [
+                    "しとくから、",
+                    "ホテルを",
+                    "予約",
+                    "日程を"
+                ],
+                "a": [
+                    "ホテルを",
+                    "予約",
+                    "しとくから、",
+                    "日程を"
+                ]
+            },
+            {
+                "q": "＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿いけないんだ。",
+                "o": [
+                    "借りた",
+                    "本、",
+                    "返さないと",
+                    "明日までに"
+                ],
+                "a": [
+                    "借りた",
+                    "本、",
+                    "明日までに",
+                    "返さないと"
+                ]
+            },
+            {
+                "q": "＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "といて",
+                    "ジュース、",
+                    "くれた？",
+                    "冷やし"
+                ],
+                "a": [
+                    "ジュース、",
+                    "冷やし",
+                    "といて",
+                    "くれた？"
+                ]
+            },
+            {
+                "q": "終電が＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "早く",
+                    "駅に",
+                    "行っちゃうよ。",
+                    "行かないと。"
+                ],
+                "a": [
+                    "行っちゃうよ。",
+                    "早く",
+                    "駅に",
+                    "行かないと。"
+                ]
+            },
+            {
+                "q": "忘れないように、＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "しといた",
+                    "いいよ。",
+                    "ほうが",
+                    "メモ"
+                ],
+                "a": [
+                    "メモ",
+                    "しといた",
+                    "ほうが",
+                    "いいよ。"
+                ]
+            }
+        ]
+    },
+    "3": {
+        "theme": "第1週 3日目",
+        "mondai1": [
+            {
+                "q": "彼は（　　）性格で、みんなに頼られている。",
+                "o": [
+                    "男っぽい",
+                    "男の",
+                    "男みたいな",
+                    "男らしい"
+                ],
+                "a": 3
+            },
+            {
+                "q": "中学生の娘は、最近急に（　　）なった。",
+                "o": [
+                    "大人っぽく",
+                    "大人らしく",
+                    "大人みたいに",
+                    "大人のように"
+                ],
+                "a": 0
+            },
+            {
+                "q": "彼の話は（　　）、信じられない。",
+                "o": [
+                    "うそみたいで",
+                    "うそで",
+                    "うそらしくて",
+                    "うそっぽくて"
+                ],
+                "a": 0
+            },
+            {
+                "q": "今日は暖かくて、やっと（　　）天気になった。",
+                "o": [
+                    "春らしい",
+                    "春みたいな",
+                    "春のような",
+                    "春っぽい"
+                ],
+                "a": 0
+            },
+            {
+                "q": "彼女はわがままで、まるで（　　）性格だ。",
+                "o": [
+                    "ネコのような",
+                    "ネコっぽい",
+                    "ネコらしい",
+                    "ネコみたいな"
+                ],
+                "a": 3
+            },
+            {
+                "q": "このケーキはプロのパティシエが作ったとは（　　）味だ。",
+                "o": [
+                    "プロっぽい",
+                    "到底考えられない",
+                    "プロらしい",
+                    "まるでプロみたいな"
+                ],
+                "a": 1
+            },
+            {
+                "q": "春なのに、今日は全く（　　）、真冬のような寒さだ。",
+                "o": [
+                    "春らしくなく",
+                    "春らしくて",
+                    "春でなく",
+                    "春みたいで"
+                ],
+                "a": 0
+            },
+            {
+                "q": "彼の性格はわがままなネコとは全く違い、とても従順な（　　）。",
+                "o": [
+                    "犬らしい",
+                    "犬っぽい",
+                    "犬みたいだ",
+                    "犬のようだ"
+                ],
+                "a": 3
+            },
+            {
+                "q": "最近は冬なのに雪が降らず、まったく（　　）天気が続いている。",
+                "o": [
+                    "冬みたいに",
+                    "冬らしい",
+                    "冬っぽい",
+                    "冬らしくない"
+                ],
+                "a": 3
+            },
+            {
+                "q": "この服はデザインが（　　）、とても高級感がある。",
+                "o": [
+                    "安みたいで",
+                    "安っぽくて",
+                    "安らしくて",
+                    "安っぽくなくて"
+                ],
+                "a": 3
+            }
+        ],
+        "mondai2": [
+            {
+                "q": "遠くから見ると、＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "みたいに",
+                    "見える。",
+                    "おもちゃ",
+                    "家が"
+                ],
+                "a": [
+                    "家が",
+                    "おもちゃ",
+                    "みたいに",
+                    "見える。"
+                ]
+            },
+            {
+                "q": "今日は暖かくて、やっと＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "春",
+                    "天気に",
+                    "らしい",
+                    "なった。"
+                ],
+                "a": [
+                    "春",
+                    "らしい",
+                    "天気に",
+                    "なった。"
+                ]
+            },
+            {
+                "q": "＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿服を着なさい。",
+                "o": [
+                    "新入社員なら、",
+                    "らしい",
+                    "若者",
+                    "もっと"
+                ],
+                "a": [
+                    "新入社員なら、",
+                    "もっと",
+                    "若者",
+                    "らしい"
+                ]
+            },
+            {
+                "q": "＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿らしい作文を書きなさい。",
+                "o": [
+                    "自分の",
+                    "もっと",
+                    "あなた",
+                    "言葉で、"
+                ],
+                "a": [
+                    "もっと",
+                    "自分の",
+                    "言葉で、",
+                    "あなた"
+                ]
+            },
+            {
+                "q": "小学生らしい＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "きた。",
+                    "挨拶が",
+                    "元気な",
+                    "聞こえて"
+                ],
+                "a": [
+                    "元気な",
+                    "挨拶が",
+                    "聞こえて",
+                    "きた。"
+                ]
+            }
+        ]
+    },
+    "4": {
+        "theme": "第1週 4日目",
+        "mondai1": [
+            {
+                "q": "健康のために、毎日野菜を（　　）しています。",
+                "o": [
+                    "食べるように",
+                    "食べないように",
+                    "食べられるように",
+                    "食べるために"
+                ],
+                "a": 0
+            },
+            {
+                "q": "後ろの人にも（　　）、大きな声で話してください。",
+                "o": [
+                    "聞こえないように",
+                    "聞くように",
+                    "聞かせるように",
+                    "聞こえるように"
+                ],
+                "a": 3
+            },
+            {
+                "q": "授業中は日本語だけを（　　）しましょう。",
+                "o": [
+                    "話さないように",
+                    "話すように",
+                    "話せるように",
+                    "話すために"
+                ],
+                "a": 1
+            },
+            {
+                "q": "（　　）、手帳にメモしておきます。",
+                "o": [
+                    "忘れるように",
+                    "忘れないように",
+                    "忘れられるように",
+                    "忘れるために"
+                ],
+                "a": 1
+            },
+            {
+                "q": "半年練習して、やっと（　　）なった。",
+                "o": [
+                    "泳げるように",
+                    "泳ぐように",
+                    "泳げないように",
+                    "泳げるために"
+                ],
+                "a": 0
+            },
+            {
+                "q": "周りの人に（　　）、静かにドアを閉めた。",
+                "o": [
+                    "迷惑をかけるように",
+                    "迷惑がかからないように",
+                    "迷惑がかかるために",
+                    "迷惑がかかるように"
+                ],
+                "a": 1
+            },
+            {
+                "q": "相手を（　　）、言葉を選んで注意した。",
+                "o": [
+                    "傷つくように",
+                    "傷つけないように",
+                    "傷つけるように",
+                    "傷つけられるように"
+                ],
+                "a": 1
+            },
+            {
+                "q": "年を取るにつれて、小さい文字が（　　）。",
+                "o": [
+                    "読めるようになってきました",
+                    "読めなくなってきました",
+                    "読むようになってきました",
+                    "読まなくなってきました"
+                ],
+                "a": 1
+            },
+            {
+                "q": "パソコンが壊れてしまって、ネットが（　　）。",
+                "o": [
+                    "使えるようになった",
+                    "使えなくなった",
+                    "使わなくなった",
+                    "使うようになった"
+                ],
+                "a": 1
+            },
+            {
+                "q": "誰にも（　　）、部屋の隅で小さな声で話した。",
+                "o": [
+                    "聞くように",
+                    "聞かせるように",
+                    "聞かれるように",
+                    "聞かれないように"
+                ],
+                "a": 3
+            }
+        ],
+        "mondai2": [
+            {
+                "q": "＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿閉めておいてください。",
+                "o": [
+                    "ように、",
+                    "入らない",
+                    "窓を",
+                    "風が"
+                ],
+                "a": [
+                    "風が",
+                    "入らない",
+                    "ように、",
+                    "窓を"
+                ]
+            },
+            {
+                "q": "息子は最近、＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿なった。",
+                "o": [
+                    "乗れる",
+                    "一人で",
+                    "自転車に",
+                    "ように"
+                ],
+                "a": [
+                    "一人で",
+                    "自転車に",
+                    "乗れる",
+                    "ように"
+                ]
+            },
+            {
+                "q": "＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿ようになった。",
+                "o": [
+                    "治って、",
+                    "また",
+                    "歩ける",
+                    "怪我が"
+                ],
+                "a": [
+                    "怪我が",
+                    "治って、",
+                    "また",
+                    "歩ける"
+                ]
+            },
+            {
+                "q": "病気が＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿お祈りをした。",
+                "o": [
+                    "治る",
+                    "早く",
+                    "ように、",
+                    "神社で"
+                ],
+                "a": [
+                    "早く",
+                    "治る",
+                    "ように、",
+                    "神社で"
+                ]
+            },
+            {
+                "q": "新しい＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿できるようになった。",
+                "o": [
+                    "覚えて、",
+                    "使い方を",
+                    "ソフトの",
+                    "仕事が"
+                ],
+                "a": [
+                    "ソフトの",
+                    "使い方を",
+                    "覚えて、",
+                    "仕事が"
+                ]
+            }
+        ]
+    },
+    "5": {
+        "theme": "第1週 5日目",
+        "mondai1": [
+            {
+                "q": "明日の試験に（　　）。",
+                "o": [
+                    "合格しますほどに",
+                    "合格しますために",
+                    "合格しますように",
+                    "合格しますそうに"
+                ],
+                "a": 2
+            },
+            {
+                "q": "先生に、宿題を（　　）言われた。",
+                "o": [
+                    "忘れないそうにと",
+                    "忘れないためにと",
+                    "忘れるようにと",
+                    "忘れないようにと"
+                ],
+                "a": 3
+            },
+            {
+                "q": "ここ（　　）、締め切りは明日です。",
+                "o": [
+                    "書いてあるほど",
+                    "書いてあるために",
+                    "書いてあるように",
+                    "書いてある通りに"
+                ],
+                "a": 2
+            },
+            {
+                "q": "母に、部屋を（　　）注意された。",
+                "o": [
+                    "片付けるように",
+                    "片付けられるように",
+                    "片付けるために",
+                    "片付けないように"
+                ],
+                "a": 0
+            },
+            {
+                "q": "皆様（　　）、来月から消費税が上がります。",
+                "o": [
+                    "ご存じのままに",
+                    "ご存じのとおり",
+                    "ご存じのほど",
+                    "ご存じのように"
+                ],
+                "a": 3
+            },
+            {
+                "q": "プレゼンで、大きなミスを（　　）祈った。",
+                "o": [
+                    "しませんようにと",
+                    "しないためにと",
+                    "しませんそうにと",
+                    "しますようにと"
+                ],
+                "a": 0
+            },
+            {
+                "q": "（　　）、実は社長が交代します。",
+                "o": [
+                    "ご存じの通り",
+                    "初めてお聞きになるかもしれませんが",
+                    "ご存じの通りですが",
+                    "ご存じのように"
+                ],
+                "a": 1
+            },
+            {
+                "q": "医者に、治るまでは甘いものを（　　）止められている。",
+                "o": [
+                    "食べるように",
+                    "食べないように",
+                    "食べないために",
+                    "食べられるように"
+                ],
+                "a": 1
+            },
+            {
+                "q": "（　　）、この店は来月で閉店するんです。",
+                "o": [
+                    "ご存じのように",
+                    "ご存じの通り",
+                    "ご存じの通りですが",
+                    "ご存じないかもしれませんが"
+                ],
+                "a": 3
+            },
+            {
+                "q": "ここは危ないから、絶対に（　　）注意されている。",
+                "o": [
+                    "遊ばないようにと",
+                    "遊ばないそうにと",
+                    "遊ぶようにと",
+                    "遊ばないためにと"
+                ],
+                "a": 0
+            }
+        ],
+        "mondai2": [
+            {
+                "q": "素敵な恋人が＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿した。",
+                "o": [
+                    "お願い",
+                    "できます",
+                    "ようにと",
+                    "神社で"
+                ],
+                "a": [
+                    "できます",
+                    "ようにと",
+                    "神社で",
+                    "お願い"
+                ]
+            },
+            {
+                "q": "＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿ように。",
+                "o": [
+                    "家族",
+                    "健康で",
+                    "過ごせます",
+                    "みんなが"
+                ],
+                "a": [
+                    "家族",
+                    "みんなが",
+                    "健康で",
+                    "過ごせます"
+                ]
+            },
+            {
+                "q": "いつも＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿です。",
+                "o": [
+                    "早寝早起きが",
+                    "大切",
+                    "言っている",
+                    "ように、"
+                ],
+                "a": [
+                    "言っている",
+                    "ように、",
+                    "早寝早起きが",
+                    "大切"
+                ]
+            },
+            {
+                "q": "警察官に、ここに＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "ように",
+                    "駐車しない",
+                    "警告",
+                    "された。"
+                ],
+                "a": [
+                    "駐車しない",
+                    "ように",
+                    "警告",
+                    "された。"
+                ]
+            },
+            {
+                "q": "前回の会議で決定した＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "進めて",
+                    "計画を",
+                    "ください。",
+                    "ように、"
+                ],
+                "a": [
+                    "ように、",
+                    "計画を",
+                    "進めて",
+                    "ください。"
+                ]
+            }
+        ]
+    },
+    "6": {
+        "theme": "第1週 6日目",
+        "mondai1": [
+            {
+                "q": "電車に（　　）、ドアが閉まってしまった。",
+                "o": [
+                    "乗ったときに",
+                    "乗ろうとしたときに",
+                    "乗るために",
+                    "乗っているときに"
+                ],
+                "a": 1
+            },
+            {
+                "q": "うちの子は、野菜を全く（　　）。",
+                "o": [
+                    "食べようとした",
+                    "食べようとしない",
+                    "食べると思う",
+                    "食べようと思う"
+                ],
+                "a": 1
+            },
+            {
+                "q": "来年、日本へ（　　）います。",
+                "o": [
+                    "留学すると思って",
+                    "留学しようと思って",
+                    "留学したと思って",
+                    "留学しようとしないで"
+                ],
+                "a": 1
+            },
+            {
+                "q": "彼に真実を（　　）、勇気が出なかった。",
+                "o": [
+                    "話そうと思ったが",
+                    "話すために",
+                    "話そうとしたが",
+                    "話そうとしなかったが"
+                ],
+                "a": 2
+            },
+            {
+                "q": "健康のために、タバコを（　　）。",
+                "o": [
+                    "やめようとしない",
+                    "やめるつもりはない",
+                    "やめるところだ",
+                    "やめようと思う"
+                ],
+                "a": 3
+            },
+            {
+                "q": "私は今の仕事を（　　）。",
+                "o": [
+                    "辞めようとしません",
+                    "辞めるつもりは全くありません",
+                    "辞めようと思います",
+                    "辞めるところです"
+                ],
+                "a": 1
+            },
+            {
+                "q": "電車から（　　）、激しい雨が降ってきた。",
+                "o": [
+                    "降りた途端に",
+                    "降りているときに",
+                    "降りようとしたときに",
+                    "降りたときに"
+                ],
+                "a": 0
+            },
+            {
+                "q": "彼は失敗を恐れず、常に新しいことに（　　）。",
+                "o": [
+                    "挑戦したところだ",
+                    "挑戦しようと思う",
+                    "挑戦しようとしない",
+                    "挑戦しようとする"
+                ],
+                "a": 3
+            },
+            {
+                "q": "赤ちゃんは何度転んでも、諦めずにまた（　　）。",
+                "o": [
+                    "立ち上がったところだ",
+                    "立ち上がろうとする",
+                    "立ち上がろうと思う",
+                    "立ち上がろうとしない"
+                ],
+                "a": 1
+            }
+        ],
+        "mondai2": [
+            {
+                "q": "来年、＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "います。",
+                    "日本へ",
+                    "留学しようと",
+                    "思って"
+                ],
+                "a": [
+                    "日本へ",
+                    "留学しようと",
+                    "思って",
+                    "います。"
+                ]
+            },
+            {
+                "q": "あの学生は、＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "授業中",
+                    "しない。",
+                    "勉強しようと",
+                    "まったく"
+                ],
+                "a": [
+                    "授業中",
+                    "まったく",
+                    "勉強しようと",
+                    "しない。"
+                ]
+            },
+            {
+                "q": "電車に乗ろうとした＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "ドアが",
+                    "しまった。",
+                    "閉まって",
+                    "ときに、"
+                ],
+                "a": [
+                    "ときに、",
+                    "ドアが",
+                    "閉まって",
+                    "しまった。"
+                ]
+            },
+            {
+                "q": "横断歩道を渡ろうとした＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿",
+                "o": [
+                    "信号が",
+                    "なった。",
+                    "赤に",
+                    "とき、"
+                ],
+                "a": [
+                    "とき、",
+                    "信号が",
+                    "赤に",
+                    "なった。"
+                ]
+            },
+            {
+                "q": "大学院に＿＿＿ ＿＿＿ ★＿＿＿ ＿＿＿いる。",
+                "o": [
+                    "進学して、",
+                    "思って",
+                    "研究しようと",
+                    "もっと"
+                ],
+                "a": [
+                    "進学して、",
+                    "もっと",
+                    "研究しようと",
+                    "思って"
+                ]
+            }
+        ]
+    }
+};
+
+        // ========================================
+        // アプリケーションロジック
+        // ========================================
+        
+        const NUM_MONDAI1 = 5;  
+        const NUM_MONDAI2 = 3;  
+        let currentDay = 0;
+        let selectedQuestions = { mondai1: [], mondai2: [] };
+        let userAnswersMondai2 = {};
+
+        const quizContainer = document.getElementById('quiz-container');
+        const daySelector = document.getElementById('day-selector');
+        const welcomeScreen = document.getElementById('welcome-screen');
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function processFurigana(text) {
+            if (!text) return '';
+            return text.replace(/([\u4e00-\u9faf\u3005]+)\[(.+?)\]/g, '<ruby>$1<rt>$2</rt></ruby>');
+        }
+
+        function createDayButtons() {
+            const dayKeys = Object.keys(window.grammarQuizData || {}).map(Number).sort((a, b) => a - b);
+            
+            dayKeys.forEach(day => {
+                const button = document.createElement('button');
+                const label = day === 7 ? "まとめテスト" : `Day ${day}`;
+                button.innerText = label;
+                button.classList.add(
+                    'day-btn', 'px-4', 'py-2', 'font-semibold', 'bg-white', 'text-blue-600', 
+                    'rounded-lg', 'shadow-sm', 'border', 'border-blue-100', 'hover:bg-blue-50', 
+                    'transition', 'min-w-[80px]'
+                );
+                button.dataset.day = day;
+                button.addEventListener('click', () => selectDay(day));
+                daySelector.appendChild(button);
+            });
+        }
+
+        function selectDay(day) {
+            currentDay = day;
+            
+            document.querySelectorAll('.day-btn').forEach(btn => {
+                const isActive = parseInt(btn.dataset.day) === day;
+                btn.classList.toggle('active', isActive);
+                if(isActive) btn.classList.remove('bg-white', 'text-blue-600');
+                else btn.classList.add('bg-white', 'text-blue-600');
+            });
+
+            const dayData = window.grammarQuizData[day];
+            
+            quizContainer.innerHTML = `
+                <div class="text-center fade-in py-8">
+                    <span class="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold mb-4">Day ${day}</span>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">${dayData.theme}</h2>
+                    <p class="text-gray-500 mb-8">全 ${Math.min(dayData.mondai1.length, NUM_MONDAI1) + Math.min(dayData.mondai2.length, NUM_MONDAI2)} 問</p>
+                    <button id="start-btn" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 hover:shadow-lg transition transform hover:-translate-y-1">
+                        クイズを始める
+                    </button>
+                </div>
+            `;
+            document.getElementById('start-btn').addEventListener('click', startQuiz);
+        }
+
+        function startQuiz() {
+            const dayData = window.grammarQuizData[currentDay];
+            
+            const m1Count = Math.min(dayData.mondai1.length, NUM_MONDAI1);
+            const m2Count = Math.min(dayData.mondai2.length, NUM_MONDAI2);
+            
+            selectedQuestions.mondai1 = shuffleArray([...dayData.mondai1]).slice(0, m1Count);
+            selectedQuestions.mondai2 = shuffleArray([...dayData.mondai2]).slice(0, m2Count);
+            userAnswersMondai2 = {};
+
+            let html = `<form id="quiz-form" class="fade-in">`;
+
+            if (selectedQuestions.mondai1.length > 0) {
+                html += `<h3 class="flex items-center text-lg font-bold text-gray-700 mb-4 mt-2">
+                    <span class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center mr-2 text-sm">1</span>
+                    文の（　　）に入る最もよいものを選んでください。
+                </h3>`;
+                
+                selectedQuestions.mondai1.forEach((q, index) => {
+                    const qText = processFurigana(q.q).replace(/（　　）/g, '<span class="border-b-2 border-blue-400 px-2 mx-1 font-bold text-blue-600">（　　）</span>');
+                    html += `
+                        <div class="mb-8 bg-gray-50 p-5 rounded-lg border border-gray-100">
+                            <p class="font-medium text-lg mb-4 text-gray-800 leading-relaxed">${index + 1}. ${qText}</p>
+                            <div id="q1-${index}-options" class="space-y-2">`;
+                    q.o.forEach((option, i) => {
+                        html += `
+                            <label class="choice-label flex items-center group">
+                                <input type="radio" name="q1-${index}" value="${i}" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500 mr-3">
+                                <span class="text-gray-700 group-hover:text-gray-900">${processFurigana(option)}</span>
+                            </label>`;
+                    });
+                    html += `</div></div>`;
+                });
+            }
+
+            if (selectedQuestions.mondai2.length > 0) {
+                html += `<h3 class="flex items-center text-lg font-bold text-gray-700 mb-4 mt-8">
+                    <span class="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center mr-2 text-sm">2</span>
+                    ★に入る最もよいものを選んでください。
+                </h3>`;
+                
+                selectedQuestions.mondai2.forEach((q, index) => {
+                    userAnswersMondai2[index] = [];
+                    const shuffledOptions = shuffleArray([...q.o]);
+                    
+                    const qText = processFurigana(q.q)
+                        .replace(/＿/g, '<span class="text-gray-300 mx-0.5">__</span>')
+                        .replace(/★/g, '<span class="text-yellow-500 text-xl mx-1">★</span>');
+
+                    html += `
+                        <div class="mb-8 bg-gray-50 p-5 rounded-lg border border-gray-100">
+                            <p class="font-medium text-lg mb-4 text-gray-800 leading-relaxed">${index + 1}. ${qText}</p>
+                            
+                            <div id="reorder-answer-box-${index}" class="reorder-answer-box bg-white mb-4 shadow-inner text-lg font-medium text-blue-800 min-h-[50px]">
+                                <span class="text-gray-400 text-sm w-full text-center placeholder-text">選択肢をクリックして並べてください</span>
+                            </div>
+                            
+                            <div id="reorder-options-${index}" class="flex flex-wrap gap-2 mb-2">`;
+                    
+                    shuffledOptions.forEach((option) => {
+                        const escapedOption = option.replace(/'/g, "\\'");
+                        html += `<button type="button" onclick="selectReorderOption(this, ${index}, '${escapedOption}')" class="reorder-option shadow-sm">${processFurigana(option)}</button>`;
+                    });
+                    
+                    html += `</div>
+                             <div class="flex justify-end">
+                                <button type="button" onclick="clearReorderOption(${index})" class="text-sm text-red-500 hover:text-red-700 hover:underline flex items-center">
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    やり直す
+                                </button>
+                             </div>
+                        </div>`;
+                });
+            }
+
+            html += `
+                <div class="text-center mt-10 mb-6">
+                    <button type="submit" class="w-full sm:w-auto px-12 py-4 bg-green-600 text-white font-bold text-lg rounded-xl shadow-lg hover:bg-green-700 hover:shadow-xl transition transform hover:-translate-y-1 ring-4 ring-green-100">
+                        答え合わせをする
+                    </button>
+                </div>
+            </form>`;
+            
+            quizContainer.innerHTML = html;
+            document.getElementById('quiz-form').addEventListener('submit', checkAnswers);
+        }
+
+        window.selectReorderOption = (btn, qIndex, text) => {
+            const answerBox = document.getElementById(`reorder-answer-box-${qIndex}`);
+            const placeholder = answerBox.querySelector('.placeholder-text');
+            
+            if (userAnswersMondai2[qIndex].length >= 4) return;
+
+            if (placeholder) placeholder.style.display = 'none';
+            
+            btn.style.display = 'none'; 
+            
+            userAnswersMondai2[qIndex].push(text);
+            
+            const span = document.createElement('span');
+            span.className = "px-3 py-1 bg-blue-100 text-blue-800 rounded-md border border-blue-200 animate-[fadeIn_0.2s_ease-out]";
+            span.innerHTML = processFurigana(text);
+            answerBox.appendChild(span);
+        };
+
+        window.clearReorderOption = (qIndex) => {
+            userAnswersMondai2[qIndex] = [];
+            
+            const answerBox = document.getElementById(`reorder-answer-box-${qIndex}`);
+            answerBox.innerHTML = `<span class="text-gray-400 text-sm w-full text-center placeholder-text">選択肢をクリックして並べてください</span>`;
+            answerBox.classList.remove('correct', 'incorrect');
+
+            const optionsDiv = document.getElementById(`reorder-options-${qIndex}`);
+            const buttons = optionsDiv.querySelectorAll('button');
+            buttons.forEach(btn => {
+                btn.style.display = 'inline-block';
+                btn.disabled = false;
+            });
+        };
+
+        function checkAnswers(e) {
+            e.preventDefault();
+            const form = e.target;
+            let score1 = 0;
+            let score2 = 0;
+            const total1 = selectedQuestions.mondai1.length;
+            const total2 = selectedQuestions.mondai2.length;
+
+            selectedQuestions.mondai1.forEach((q, index) => {
+                const optionsDiv = document.getElementById(`q1-${index}-options`);
+                const inputs = form.querySelectorAll(`input[name="q1-${index}"]`);
+                const labels = optionsDiv.querySelectorAll('label');
+                let selectedVal = null;
+
+                inputs.forEach(input => {
+                    if (input.checked) selectedVal = parseInt(input.value);
+                    input.disabled = true;
+                });
+
+                if (selectedVal === q.a) {
+                    score1++;
+                    labels[selectedVal].classList.add('correct');
+                } else {
+                    if (selectedVal !== null) labels[selectedVal].classList.add('incorrect');
+                    labels[q.a].classList.add('correct');
+                    
+                    const feedback = document.createElement('div');
+                    feedback.className = "mt-2 text-sm text-red-600 font-semibold";
+                    feedback.innerText = "正解: " + q.o[q.a];
+                    optionsDiv.parentElement.appendChild(feedback);
+                }
+            });
+
+            selectedQuestions.mondai2.forEach((q, index) => {
+                const answerBox = document.getElementById(`reorder-answer-box-${index}`);
+                const userAnswer = userAnswersMondai2[index].join('');
+                const correctAnswer = q.a.join('');
+                
+                const btns = document.getElementById(`reorder-options-${index}`).querySelectorAll('button');
+                btns.forEach(b => b.disabled = true);
+
+                if (userAnswer === correctAnswer) {
+                    score2++;
+                    answerBox.classList.add('correct');
+                    answerBox.innerHTML += `<span class="ml-auto text-green-600 font-bold text-xl">✓</span>`;
+                } else {
+                    answerBox.classList.add('incorrect');
+                    
+                    const correctDiv = document.createElement('div');
+                    correctDiv.className = "mt-3 p-3 bg-red-50 border border-red-200 rounded text-red-800 text-sm";
+                    correctDiv.innerHTML = `<strong>正解:</strong> ${q.a.join(' ')}`;
+                    answerBox.parentElement.appendChild(correctDiv);
+                }
+            });
+
+            const totalScore = score1 + score2;
+            const maxScore = total1 + total2;
+            const percentage = maxScore > 0 ? Math.round((totalScore / maxScore) * 100) : 0;
+            
+            let message = "";
+            if (percentage === 100) message = "素晴らしい！満点です！🎉";
+            else if (percentage >= 80) message = "大変よくできました！👍";
+            else if (percentage >= 60) message = "合格圏内です！その調子！💪";
+            else message = "復習してもう一度挑戦しましょう！📚";
+
+            const resultHTML = `
+                <div class="mt-10 p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200 text-center shadow-lg fade-in">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">結果発表</h3>
+                    <p class="text-blue-600 font-bold text-lg mb-6">${message}</p>
+                    
+                    <div class="flex justify-center items-center mb-8">
+                        <div class="relative w-32 h-32 flex items-center justify-center rounded-full border-4 border-blue-500 bg-white shadow-md">
+                            <div>
+                                <span class="text-4xl font-bold text-gray-800">${totalScore}</span>
+                                <span class="text-gray-500 text-xl">/${maxScore}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto mb-8">
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">問題1</div>
+                            <div class="text-xl font-bold text-gray-800">${score1}/${total1}</div>
+                        </div>
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <div class="text-xs text-gray-500 uppercase tracking-wide">問題2</div>
+                            <div class="text-xl font-bold text-gray-800">${score2}/${total2}</div>
+                        </div>
+                    </div>
+
+                    <button onclick="resetQuiz()" class="px-8 py-3 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition shadow-md">
+                        トップに戻る
+                    </button>
+                </div>
+            `;
+
+            quizContainer.insertAdjacentHTML('beforeend', resultHTML);
+            document.querySelector('.bg-gradient-to-br').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function resetQuiz() {
+            currentDay = 0;
+            selectedQuestions = { mondai1: [], mondai2: [] };
+            userAnswersMondai2 = {};
+
+            document.querySelectorAll('.day-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.classList.add('bg-white', 'text-blue-600');
+            });
+
+            quizContainer.innerHTML = `
+                <div id="welcome-screen" class="text-center py-10 fade-in">
+                    <div class="mb-6 text-6xl">📖</div>
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">学習を始めましょう</h2>
+                    <p class="text-gray-500 max-w-md mx-auto">上のボタンから学習したい日（Day）を選んでください。各日の文法ポイントに基づいた問題が出題されます。</p>
+                </div>
+            `;
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        document.addEventListener('DOMContentLoaded', createDayButtons);
+    </script>
+    <script>
+        // ========================================
+        // ふりがな（Kuroshiro）処理
+        // ========================================
+        let kuroshiroInstance = null;
+        let isKuroshiroReady = false;
+
+        async function initKuroshiro() {
+            try {
+                const KuroshiroClass = typeof Kuroshiro !== 'undefined' && Kuroshiro.default ? Kuroshiro.default : Kuroshiro;
+                kuroshiroInstance = new KuroshiroClass();
+                await kuroshiroInstance.init(new KuromojiAnalyzer({
+                    dictPath: "https://cdn.jsdelivr.net/npm/kuromoji@0.1.2/dict"
+                }));
+                isKuroshiroReady = true;
+                
+                // Add global click listener for ruby tags
+                document.addEventListener('click', function(e) {
+                    let target = e.target;
+                    while (target && target !== document) {
+                        if (target.tagName && target.tagName.toLowerCase() === 'ruby') {
+                            target.classList.toggle('show-furigana');
+                            break;
+                        }
+                        target = target.parentNode;
+                    }
+                });
+            } catch (e) {
+                console.error("Kuroshiro initialization failed:", e);
+            }
+        }
+        
+        async function applyFurigana() {
+            if (!isKuroshiroReady) return;
+            
+            // 変換対象のセレクタ (問題文、選択肢、並べ替え語句)
+            const targets = document.querySelectorAll('.text-gray-800.leading-relaxed, .choice-label span, .reorder-option');
+            
+            for (let el of targets) {
+                // 既に変換済みの場合はスキップ
+                if (el.hasAttribute('data-furigana-applied')) continue;
+                
+                const originalHtml = el.innerHTML;
+                // HTMLタグが含まれている場合は、テキストノードを再帰的に処理するのが理想だが、
+                // KuroshiroのHTML変換機能を使用
+                try {
+                    const result = await kuroshiroInstance.convert(originalHtml, { mode: "furigana", to: "hiragana" });
+                    el.innerHTML = result;
+                    el.setAttribute('data-furigana-applied', 'true');
+                } catch(e) {
+                    console.error("Furigana conversion error:", e);
+                }
+            }
+        }
+
+        // ページ読み込み時にKuroshiroを初期化
+        document.addEventListener('DOMContentLoaded', initKuroshiro);
+        
+        // original startQuiz関数をオーバーライドして、描画後にapplyFuriganaを呼ぶようにラップする
+        const originalStartQuiz = window.startQuiz;
+        if (typeof originalStartQuiz === 'function') {
+            window.startQuiz = function() {
+                originalStartQuiz();
+                // 描画後にふりがなを適用する
+                setTimeout(applyFurigana, 50);
+            };
+        } else {
+            // W6のスクリプトでは startQuizはグローバルなのでこれで補足可能
+            // イベントリスナーの元の処理を書き換える
+            document.addEventListener('click', function(e) {
+                if (e.target && e.target.id === 'start-btn') {
+                    setTimeout(applyFurigana, 100);
+                }
+            });
+        }
+        </script>
+</body>
+</html>
